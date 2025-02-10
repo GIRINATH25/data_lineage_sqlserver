@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Schemas in {{ database.db_name }}</title>
+</head>
+<body>
+  <h1>Schemas in {{ database.db_name }}</h1>
+  <ul>
+    {% for schema in schemas %}
+      <li><a href="{{ url_for('schema', schema_id=schema.schema_id) }}">{{ schema.schema_name }}</a></li>
+    {% endfor %}
+  </ul>
+  <a href="/">Back to Databases</a>
+</body>
+</html>

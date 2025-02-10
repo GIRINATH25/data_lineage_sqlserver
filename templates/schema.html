@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>{{ schema.schema_name }}</title>
+</head>
+<body>
+  <h1>{{ schema.schema_name }}</h1>
+  <h2>Tables</h2>
+    <ul>
+    {% for table in tables %}
+        <li><a href="{{ url_for('table_lineage', tab_id=table.tab_id) }}">{{ table.tab_name }}</a></li>
+    {% endfor %}
+    </ul>
+
+
+  <h2>Views</h2>
+  <ul>
+    {% for view in views %}
+      <li>{{ view.v_name }}</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Stored Procedures</h2>
+  <ul>
+    {% for sp in stored_procedures %}
+      <li>{{ sp.sp_name }}</li>
+    {% endfor %}
+  </ul>
+
+  <a href="/">Back to Databases</a>
+</body>
+</html>

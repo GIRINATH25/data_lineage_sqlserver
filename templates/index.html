@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Databases</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+      // Function to trigger ingestdb route with user input
+      function ingestDatabase() {
+        const dbName = document.getElementById('db_name').value;
+        if (!dbName) {
+          alert("Please enter a database name.");
+          return;
+        }
+        fetch(`/ingestdb?db_name=${encodeURIComponent(dbName)}`)
+          .then(response => response.text())
+          .then(data => alert(data))
+          .catch(error => console.error("Error during database ingestion:", error));
+      }
+
+      // Function to trigger lineageingest route
+      function ingestLineage() {
+        const dbName = document.getElementById('db_name_lin').value;
+        if (!dbName) {
+          alert("Please enter a database name.");
+          return;
+        }
+        fetch(`/lineageingest?db_name=${encodeURIComponent(dbName)}`)
+          .then(response => response.text())
+          .then(data => alert(data))
+          .catch(error => console.error("Error during lineage ingestion:", error));
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Databases</h1>
+
+    <h4>Enter database name to import:</h4>
+    <input type="text" id="db_name" name="db_name" placeholder="Enter DB Name">
+    <button id="import" onclick="ingestDatabase()">Import</button>
+
+    <br><br>
+    <input type="text" id="db_name_lin" name="db_name_lin" placeholder="Enter DB Name">
+    <button id="lineage-ingest" onclick="ingestLineage()">Lineage Ingest</button>
+
+    <h2>Available Databases</h2>
+    <ul>
+      {% for database in databases %}
+        <li>
+          <a href="{{ url_for('database', db_id=database.db_id) }}">{{ database.db_name }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Table Relations</title>
+</head>
+<body>
+  <h1>Table Relations</h1>
+  <table border="1">
+    <tr>
+      <th>Target Table</th>
+      <th>Source Table</th>
+    </tr>
+    {% for relation in relations %}
+      <tr>
+        <td>{{ relation.TargetTable }}</td>
+        <td>{{ relation.SourceTable }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+  <a href="/">Back to Databases</a>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lineage Visualization</title>
+  <style>
+    body {
+      display: flex;
+      font-family: Arial, sans-serif;
+    }
+    #visualization {
+      width: 70%;
+      height: 100vh;
+      border-right: 2px solid #ddd;
+    }
+    #query-panel {
+      width: 30%;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    h3 {
+      text-align: center;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      background-color: #e9ecef;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h4>Lineage Visualization</h4>
+  <div id="visualization"></div>
+  <div id="query-panel">
+    <h3>Query Information</h3>
+    <pre id="query-display">
+Click on a node or edge to view the associated query.</pre>
+  </div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    const nodes = {{ nodes | tojson }};
+    const links = {{ links | tojson }};
+
+    function renderLineage() {
+      const width = 800, height = 600;
+
+      const svg = d3.select("#visualization")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      const simulation = d3.forceSimulation(nodes)
+        .force("link", d3.forceLink(links).id(d => d.name).distance(150))
+        .force("charge", d3.forceManyBody().strength(-200))
+        .force("center", d3.forceCenter(width / 2, height / 2));
+
+      const link = svg.selectAll(".link")
+        .data(links)
+        .enter()
+        .append("line")
+        .attr("stroke", "#999")
+        .attr("stroke-width", 2)
+        .on("click", (event, d) => {
+          document.getElementById("query-display").innerText = `Source: ${d.source.name} -> Target: ${d.target.name}\nQuery: ${d.query}`;
+        });
+
+      const node = svg.selectAll(".node")
+        .data(nodes)
+        .enter()
+        .append("circle")
+        .attr("r", 10)
+        .attr("fill", "steelblue")
+        .call(drag(simulation))
+        .on("click", (event, d) => {
+          const relatedLinks = links.filter(link => link.source.name === d.name || link.target.name === d.name);
+
+          const queries = relatedLinks.map(link =>
+            `Source: ${link.source.name} -> Target: ${link.target.name}\nQuery: ${link.query}`
+          ).join("\n\n");
+
+          document.getElementById("query-display").innerText = queries || "No query found.";
+        });
+
+      const text = svg.selectAll(".text")
+        .data(nodes)
+        .enter()
+        .append("text")
+        .text(d => d.name)
+        .attr("x", 12)
+        .attr("y", 4);
+
+      simulation
+        .nodes(nodes)
+        .on("tick", () => {
+          node.attr("cx", d => d.x).attr("cy", d => d.y);
+          text.attr("x", d => d.x).attr("y", d => d.y);
+          link.attr("x1", d => d.source.x)
+              .attr("y1", d => d.source.y)
+              .attr("x2", d => d.target.x)
+              .attr("y2", d => d.target.y);
+        });
+
+      simulation.force("link").links(links);
+
+      function drag(simulation) {
+        return d3.drag()
+          .on("start", (event, d) => {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+          })
+          .on("drag", (event, d) => {
+            d.fx = event.x;
+            d.fy = event.y;
+          })
+          .on("end", (event, d) => {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+          });
+      }
+    }
+
+    renderLineage();
+  </script>
+</body>
+</html>
